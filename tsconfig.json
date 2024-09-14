@@ -23,6 +23,6 @@
   "ts-node": {
     "require": ["tsconfig-paths/register"],
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "index.js"],
   "exclude": ["node_modules", "build"]
 }

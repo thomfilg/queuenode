@@ -1,16 +1,19 @@
 import express from 'express';
-import { userController } from './app/controllers/UserController';
+import * as dotenv from "dotenv";
+dotenv.config({ path: __dirname + '/../.env' });
 
+import { userController } from './app/controllers/UserController';
 
 export default async () => {
   const app = express();
+  app.use(express.json());
 
-  app.post('/users', userController.create);
+  app.post('/user', userController.create);
   app.get('/', (req, res) => {
     res.send('Hello World');
   });
 
-  app.listen(4444, () => {
-    console.log('Server is running on http://localhost:4444');
+  app.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}`);
   });
 }
