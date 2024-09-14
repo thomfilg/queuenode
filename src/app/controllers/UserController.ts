@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
+import { add } from "../lib/queue";
 import { IUser } from "../types/IUser";
-import { Mail } from "../lib/mailer";
 
 export const userController = {
   async create (req: Request, res: Response): Promise<void> {
@@ -11,12 +11,7 @@ export const userController = {
       email,
     };
 
-    await Mail.sendMail({
-      from: 'Queue test <queue@queuetest.com>',
-      to: `${name} <${email}>`,
-      subject: 'Welcome to the queue',
-      text: `Hello ${name}, welcome to the queue!`,
-    });
+    await add('RegistrationMail', user);
 
     res.json(user);
   }
