@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2022"], // Support latest LTS ES features
+    "lib": ["ES2022"],
     "outDir": "build",
     "allowJs": true,
     "skipLibCheck": true,
@@ -9,7 +9,6 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    // "module": "ESNext",
     "module": "CommonJS",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -19,6 +18,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmitOnError": true,
+    "inlineSources": true,
+    "sourceRoot": "/"
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"],

@@ -4,3 +4,5 @@ build
 coverage
 .vscode
 .env
+# Sentry Config File
+.sentryclirc

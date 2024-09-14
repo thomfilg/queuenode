@@ -1,4 +1,0 @@
-{   
-    "ext": "js,ts",
-    "ignore": ["*.spec.js", "*.test.js"]
-}

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import Queue from "bull";
 import { redisConfig } from "../config/redis.config";
 import * as jobs from "../jobs";
@@ -27,6 +28,7 @@ export const add = async (name: QueueNames, data: any) => {
 export const process = () => queues.forEach(({ bull, handle }) => {
   bull.process(handle);
   bull.on('failed', (job, error) => {
+    Sentry.captureException(error);
     console.error(`Queue ${bull.name} failed`, job.data);
     console.error(error);
   });
