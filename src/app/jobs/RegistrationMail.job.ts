@@ -4,12 +4,17 @@ import { IUser } from '../types/IUser';
 
 export const RegistrationMail: IJob<IUser> = {
   options: {
-    attempts: 2,
-    removeOnComplete: true,
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 60000,
+    },
+    jobId: 'RegistrationMail',
+    stackTraceLimit: 10,
+    lifo: true,
     priority: 1,
   },
   handle: async ({ data }) => {
-    console.log('Sending registration mail to', data);
     const { name, email } = data;
 
     await Mail.sendMail({

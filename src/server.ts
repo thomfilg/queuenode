@@ -8,14 +8,13 @@ import './app/config/sentry.config';
 
 import express, { NextFunction, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { RegisterRoutes } from '../build/routes';
 import * as swaggerDocument from '../build/swagger.json';
 import { createQueueController } from './app/controllers/admin/QueuesController';
+import { UserController } from './app/controllers/UserController';
 
 export default async () => {
   const app = express();
   app.use(express.json());
-
 
   const serverAdapter = createQueueController('/admin/queues');
   app.get('/', (req, res) => res.status(200).send('Hello World'));
@@ -24,7 +23,12 @@ export default async () => {
   app.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error("My first Sentry error!");
   });
-  RegisterRoutes(app);
+
+  app.post('/user', async (req, res) => {
+    const user = new UserController();
+    const response = await user.create(req.body);
+    return res.status(201).json(response);
+  });
 
   Sentry.setupExpressErrorHandler(app);
 

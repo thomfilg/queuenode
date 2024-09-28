@@ -4,7 +4,9 @@ export enum UserRole {
 }
 
 export interface IUser {
-  name: string; 
+  name: string;
   email: string;
   role: UserRole;
 }
+
+export type CreateUserRequest = Omit<IUser, 'role'>;

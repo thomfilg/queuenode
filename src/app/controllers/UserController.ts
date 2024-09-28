@@ -1,6 +1,6 @@
-import { Controller, Post, Route, Body } from 'tsoa';
-import { IUser, UserRole } from '../types/IUser';
+import { Body, Controller, Post, Route } from 'tsoa';
 import { add } from '../lib/queue';
+import { CreateUserRequest, IUser, UserRole } from '../types/IUser';
 
 @Route('user')
 export class UserController extends Controller {
@@ -9,7 +9,7 @@ export class UserController extends Controller {
    * @param user The user to create.
    */
   @Post()
-  public async create(@Body() user: Omit<IUser, 'role'>): Promise<IUser> {
+  public async create(@Body() user: CreateUserRequest): Promise<IUser> {
     await add('RegistrationMail', user);
     return {
       ...user,
