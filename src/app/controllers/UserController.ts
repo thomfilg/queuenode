@@ -1,18 +1,19 @@
-import { Request, Response } from "express";
-import { add } from "../lib/queue";
-import { IUser } from "../types/IUser";
+import { Controller, Post, Route, Body } from 'tsoa';
+import { IUser, UserRole } from '../types/IUser';
+import { add } from '../lib/queue';
 
-export const userController = {
-  async create (req: Request, res: Response): Promise<void> {
-    const { name, email } = req.body || {};
-  
-    const user: IUser = {
-      name,
-      email,
-    };
-
+@Route('user')
+export class UserController extends Controller {
+  /**
+   * Create a new user and send a welcome email.
+   * @param user The user to create.
+   */
+  @Post()
+  public async create(@Body() user: Omit<IUser, 'role'>): Promise<IUser> {
     await add('RegistrationMail', user);
-
-    res.json(user);
+    return {
+      ...user,
+      role: UserRole.User,
+    };
   }
 }

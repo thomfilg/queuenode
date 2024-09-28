@@ -12,7 +12,9 @@
     "dev": "npm-run-all -p dev:*",
     "dev:server": "npx ts-node-dev --respawn index.js --trace-warnings",
     "dev:queue": "npx ts-node-dev --respawn queue.js --trace-warnings",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org thomfilgcom --project node ./build && sentry-cli sourcemaps upload --org thomfilgcom --project node ./build"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org thomfilgcom --project node ./build && sentry-cli sourcemaps upload --org thomfilgcom --project node ./build",
+    "tsoa:spec": "tsoa spec",
+    "tsoa:routes": "tsoa routes"
   },
   "keywords": [],
   "author": "",
@@ -33,7 +35,8 @@
     "lodash": "^4.17.21",
     "nodemailer": "^6.9.15",
     "npm-run-all": "^4.1.5",
-    "tslog": "^4.9.3"
+    "tslog": "^4.9.3",
+    "tsoa": "^6.4.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",

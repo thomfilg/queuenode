@@ -10,4 +10,6 @@ RUN npm install -g pnpm && pnpm install
 
 COPY . .
 
+RUN pnpm add -g chokidar-cli
+
 EXPOSE 3333
