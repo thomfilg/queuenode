@@ -15,6 +15,14 @@ import { UserController } from './app/controllers/UserController';
 import { logger } from './app/lib/logger';
 import { sessionMiddleware } from './app/lib/requestId';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 export default async () => {
   const app = express();
   app.use(express.json());

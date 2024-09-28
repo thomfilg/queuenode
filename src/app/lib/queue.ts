@@ -34,18 +34,24 @@ const getQueue = (name: QueueNames) => {
 };
 
 export const add = async (name: QueueNames, data: Record<string, any>, extraOptions: Partial<JobOptions> = {}) => {
-  const queue = getQueue(name);
+  try {
+    logger.info(`Adding job to queue ${name}`);
+    const queue = getQueue(name);
+    if (!queue) {
+      throw new Error(`Queue ${name} not found`);
+    }
 
-  if (!queue) {
-    throw new Error(`Queue ${name} not found`);
+    await queue.bull.add({
+      requestId: getRequestId(),
+      data,
+    }, {
+      ...queue.options,
+      ...extraOptions,
+    });
+    logger.debug(`Added job to queue ${name}`);
+  } catch (error) {
+    logger.error('Error adding job to queue', error);
+    throw error;
   }
-
-  await queue.bull.add({
-    requestId: getRequestId(),
-    data,
-  }, {
-    ...queue.options,
-    ...extraOptions,
-  });
 };
 
