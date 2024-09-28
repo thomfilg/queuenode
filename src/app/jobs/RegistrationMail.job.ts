@@ -1,8 +1,14 @@
 import { Mail } from '../lib/mailer';
+import { IJob } from '../types/IQueue';
 import { IUser } from '../types/IUser';
 
-export const RegistrationMail = {
-  handle: async ({ data }: { data: IUser }) => {
+export const RegistrationMail: IJob<IUser> = {
+  options: {
+    attempts: 2,
+    removeOnComplete: true,
+    priority: 1,
+  },
+  handle: async ({ data }) => {
     console.log('Sending registration mail to', data);
     const { name, email } = data;
 
