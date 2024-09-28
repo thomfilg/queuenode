@@ -3,11 +3,27 @@ import Queue from "bull";
 import { redisConfig } from "../config/redis.config";
 import * as jobs from "../jobs";
 
-const queues = Object.entries(jobs).map(([key, job]) => ({
-  bull: new Queue(key, { redis: redisConfig }),
-  name: key,
-  handle: job.handle,
-}));
+export const queues = Object.entries(jobs).map(([key, job]) => {
+  const bull = new Queue(key, { redis: redisConfig });
+  bull.on('error', (error) => {
+    console.error(`Queue Error:`, error);
+    Sentry.captureException(error);
+  });
+
+  bull.on('stalled', (job) => {
+    console.warn(`Stalled Job ${job.id}`);
+    const error = new Error(`Stalled Job ${job.id}`);
+    error.cause = job;
+    Sentry.captureException(error);
+  });
+
+  return {
+    bull,
+    name: key,
+    handle: job.handle,
+    options: job.options,
+  };
+});
 
 type QueueNames = keyof typeof jobs;
 
@@ -22,7 +38,7 @@ export const add = async (name: QueueNames, data: any) => {
     throw new Error(`Queue ${name} not found`);
   }
 
-  await queue.bull.add(data);
+  await queue.bull.add(data, queue.options);
 };
 
 export const process = () => queues.forEach(({ bull, handle }) => {
