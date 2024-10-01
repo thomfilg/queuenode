@@ -12,6 +12,6 @@ COPY . .
 
 RUN pnpm run tsoa:spec
 
-RUN pnpm add -g chokidar-cli
+RUN npm i -g chokidar-cli
 
 EXPOSE 3333

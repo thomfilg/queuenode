@@ -37,6 +37,7 @@ export default async () => {
     res.end((res as Response & { sentry: unknown}).sentry + "\n");
   });
   app.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
+    console.info(`Server is running on http://localhost:${process.env.PORT}`);
+    console.info(`Swagger documentation is available on http://localhost:${process.env.PORT}/api-docs`);
   });
 }

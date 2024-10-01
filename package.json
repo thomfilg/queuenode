@@ -9,7 +9,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "npm-run-all docker:up",
+    "dev": "npm-run-all tsoa:spec docker:up",
     "dev:server": "npx ts-node-dev --respawn index.js --trace-warnings",
     "dev:queue": "npx ts-node-dev --respawn queue.js --trace-warnings",
     "docker:up": "docker compose up",
