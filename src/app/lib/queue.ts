@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
 import Queue from "bull";
 import { redisConfig } from "../config/redis.config";
-import * as jobs from "../jobs";
+import * as jobs from "../../queue/jobs";
 
 export const queues = Object.entries(jobs).map(([key, job]) => {
   const bull = new Queue(key, { redis: redisConfig });
@@ -40,13 +40,4 @@ export const add = async (name: QueueNames, data: any) => {
 
   await queue.bull.add(data, queue.options);
 };
-
-export const process = () => queues.forEach(({ bull, handle }) => {
-  bull.process(handle);
-  bull.on('failed', (job, error) => {
-    Sentry.captureException(error);
-    console.error(`Queue ${bull.name} failed`, job.data);
-    console.error(error);
-  });
-});
 

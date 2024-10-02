@@ -1,22 +1,27 @@
-import { Mail } from '../lib/mailer';
-import { IJob } from '../types/IQueue';
-import { IUser } from '../types/IUser';
+import { Mail } from '../../app/lib/mailer';
+import { IJob } from '../../app/types/IQueue';
+import { IUser } from '../../app/types/IUser';
+
+const oneMinute = 1000 * 60;
+const oneHour = oneMinute * 60;
+const oneDay = oneHour * 24;
 
 export const RegistrationMail: IJob<IUser> = {
   options: {
     attempts: 3,
     backoff: {
       type: 'exponential',
-      delay: 60000,
+      delay: oneMinute,
     },
-    jobId: 'RegistrationMail',
-    stackTraceLimit: 10,
+    timeout: oneMinute / 2,
     lifo: true,
     priority: 1,
+    removeOnComplete: {
+      age: oneDay,
+    }
   },
   handle: async ({ data }) => {
     const { name, email } = data;
-
     await Mail.sendMail({
       from: 'Queue test <queue@queuetest.com>',
       to: `${name} <${email}>`,

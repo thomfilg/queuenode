@@ -10,10 +10,12 @@ export class UserController extends Controller {
    */
   @Post()
   public async create(@Body() user: CreateUserRequest): Promise<IUser> {
-    await add('RegistrationMail', user);
-    return {
+    const newUser = {
       ...user,
+      id: Math.random() * 100000000000000000 + '',
       role: UserRole.User,
     };
+    await add('RegistrationMail', newUser);
+    return newUser;
   }
 }

@@ -1,1 +1,1 @@
-require('./src/queue.process').default();
+require('./src/queue/queue.server').default();
