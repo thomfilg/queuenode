@@ -7,7 +7,10 @@ import * as Sentry from "@sentry/node";
 import { queues } from "../app/lib/queue";
 
 const process = () => queues.forEach(({ bull, handle }) => {
-  bull.process(handle);
+  bull.process((job) => {
+    console.log(`Processing job ${job.id} from queue ${bull.name}`);
+    return handle(job);
+  })
 
   bull.on('failed', async (job, error) => {
     const attemptsMade = job.attemptsMade;

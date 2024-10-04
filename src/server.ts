@@ -15,6 +15,10 @@ import { UserController } from './app/controllers/UserController';
 export default async () => {
   const app = express();
   app.use(express.json());
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.info(`Incoming request: ${req.method} ${req.url}`);
+    next();
+  });
 
   const serverAdapter = createQueueController('/admin/queues');
   app.get('/', (req, res) => res.status(200).send('Hello World'));
