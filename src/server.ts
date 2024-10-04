@@ -52,10 +52,10 @@ export default async () => {
     res.end((res as Response & { sentry: unknown}).sentry + "\n");
   });
   app.listen(process.env.PORT, () => {
-    console.info(`\n========================================`);
-    console.info(`Server is running on http://localhost:${process.env.PORT}`);
-    console.info(`Swagger documentation is available on http://localhost:${process.env.PORT}/api-docs`);
-    console.info(`Bull dashboard is available on http://localhost:${process.env.PORT}/admin/queues`);
-    console.info(`========================================\n`);
+    logger.info('Server Started', {
+      server: `http://localhost:${process.env.PORT}`,
+      swagger: `http://localhost:${process.env.PORT}/api-docs`,
+      bullDashboard: `http://localhost:${process.env.PORT}/admin/queues`,
+    });
   });
 }

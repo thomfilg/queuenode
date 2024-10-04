@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 
 export const session = createNamespace('loggerNamespace');
 
-export const getRequestId = () => getNamespace('loggerNamespace')?.get('requestId') || 'unknown';
+export const getRequestId = () => getNamespace('loggerNamespace')?.get('requestId') || '';
 export const setRequestId = (requestId: string) => {
   const currentNamespace = getNamespace('loggerNamespace');
   if (currentNamespace && currentNamespace.active) {
