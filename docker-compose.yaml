@@ -12,17 +12,27 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    command: pnpm run dev:server
+    command: npm run dev:server
     env_file:
       - .env
-    networks:
-      - queuenode-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "false"
+        # fluentd-async-flush: "true"
+        fluentd-buffer-limit: "8388608" # 8 MB
+        fluentd-request-ack: "true"
+        # no-newline: "true"
+        tag: "app"
     healthcheck:
       test: ["CMD", "curl -f http://localhost:3333/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+    networks:
+      - queuenode
 
   queue:
     build:
@@ -33,17 +43,27 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    command: pnpm run dev:queue
+    command: npm run dev:queue
     env_file:
       - .env
-    networks:
-      - queuenode-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "false"
+        # fluentd-async-flush: "true"
+        fluentd-buffer-limit: "8388608" # 8 MB
+        fluentd-request-ack: "true"
+        # no-newline: "true"
+        tag: "queue"
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'pnpm run dev:queue' || exit 1"]
+      test: ["CMD-SHELL", "pgrep -f 'npm run dev:queue' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+    networks:
+      - queuenode
 
   redis:
     image: redis:latest
@@ -52,19 +72,44 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
-    networks:
-      - queuenode-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "false"
+        # fluentd-async-flush: "true"
+        fluentd-buffer-limit: "8388608" # 8 MB
+        fluentd-max-retries: "5"
+        fluentd-request-ack: "true"
+        # no-newline: "true"
+        tag: "redis"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+    networks:
+      - queuenode
+
+  fluentd:
+    image: fluent/fluentd:v1.14-1
+    ports:
+      - "24224:24224"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 24224 && getent hosts fluentd || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - queuenode
 
 volumes:
   redis-data:
     driver: local
 
 networks:
-  queuenode-network:
-    driver: bridge
+  queuenode:

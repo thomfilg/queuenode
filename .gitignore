@@ -6,3 +6,4 @@ coverage
 .env
 # Sentry Config File
 .sentryclirc
+fluentd/log
