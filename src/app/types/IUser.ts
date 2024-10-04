@@ -10,4 +10,4 @@ export interface IUser {
   role: UserRole;
 }
 
-export type CreateUserRequest = Omit<IUser, 'role'>;
+export type CreateUserRequest = Omit<IUser, 'role' | 'id'>;
