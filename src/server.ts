@@ -11,12 +11,23 @@ import swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from '../build/swagger.json';
 import { createQueueController } from './app/controllers/admin/QueuesController';
 import { UserController } from './app/controllers/UserController';
+import { logger } from './app/lib/logger';
+import { sessionMiddleware } from './app/lib/requestId';
 
 export default async () => {
   const app = express();
   app.use(express.json());
+  app.use(sessionMiddleware);
+
   app.use((req: Request, res: Response, next: NextFunction) => {
-    console.info(`Incoming request: ${req.method} ${req.url}`);
+    if (['favicon.ico', 'robots.txt', 'api-docs', 'debug-sentry', 'admin'].some((route) => req.url.includes(route))) {
+      return next();
+    }
+
+    res.on('finish', () => {
+      logger.info(`${req.method} ${req.url} status code: ${res.statusCode}`);
+    });
+  
     next();
   });
 

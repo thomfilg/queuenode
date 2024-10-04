@@ -1,3 +1,4 @@
+import { logger } from '../../app/lib/logger';
 import { Mail } from '../../app/lib/mailer';
 import { IJob } from '../../app/types/IQueue';
 import { IUser } from '../../app/types/IUser';
@@ -28,5 +29,6 @@ export const RegistrationMail: IJob<IUser> = {
       subject: 'Welcome to the queue',
       text: `Hello ${name}, welcome to the queue!`,
     });
+    logger.debug(`RegistrationMail sent to ${name} <${email}>`);
   }
 };

@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Route } from 'tsoa';
+import { logger } from '../lib/logger';
 import { add } from '../lib/queue';
 import { CreateUserRequest, IUser, UserRole } from '../types/IUser';
 
@@ -15,6 +16,7 @@ export class UserController extends Controller {
       id: Math.random() * 100000000000000000 + '',
       role: UserRole.User,
     };
+    logger.debug(`Created user with id ${newUser.id}`, newUser);
     await add('RegistrationMail', newUser);
     return newUser;
   }
