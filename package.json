@@ -9,13 +9,13 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "npm-run-all tsoa:spec docker:up",
+    "dev": "npm-run-all --parallel docker:up tsoa:watch",
     "dev:server": "npx ts-node-dev --respawn index.js --trace-warnings",
     "dev:queue": "npx ts-node-dev --respawn queue.js --trace-warnings",
     "docker:up": "docker compose up",
     "sentry:sourcemaps": "node ./scripts/sentry-sourcemaps.js",
-    "tsoa:spec": "tsoa spec",
-    "tsoa:watch": "chokidar 'src/**/*.ts' -i 'build/**' -c 'pnpm run tsoa:spec' --initial"
+    "tsoa:spec": "npx tsoa spec",
+    "tsoa:watch": "npx chokidar 'src/**/*.ts' -i 'build/**' -c 'pnpm run tsoa:spec' --initial"
   },
   "keywords": [],
   "author": "",
