@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Route } from 'tsoa';
-import { logger } from '../lib/logger';
-import { add } from '../lib/queue';
-import { CreateUserRequest, IUser, UserRole } from '../types/IUser';
+import { logger } from '../../lib/logger';
+import { add } from '../../lib/queue';
+import { CreateUserRequest, IUser, UserRole } from '../../types/IUser';
 
 @Route('user')
 export class UserController extends Controller {

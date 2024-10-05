@@ -1,65 +1,25 @@
 // dotenv config must be imported before sentry
-import * as Sentry from '@sentry/node';
 import * as dotenv from "dotenv";
-
 dotenv.config({ path: __dirname + '/../.env' });
 
 // sentry config must be imported before express
 import './app/config/sentry.config';
 
-import express, { NextFunction, Request, Response } from 'express';
-import swaggerUi from 'swagger-ui-express';
-import * as swaggerDocument from '../build/swagger.json';
-import { createQueueController } from './app/controllers/admin/QueuesController';
-import { UserController } from './app/controllers/UserController';
+import express from 'express';
 import { logger } from './app/lib/logger';
-import { sessionMiddleware } from './app/lib/requestId';
+import { handleProcessErrors, setupErrorHandlers, setupMiddlewares, setupRoutes } from './app/setup';
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-});
+handleProcessErrors();
 
 export default async () => {
   const app = express();
-  app.use(express.json());
-  app.use(sessionMiddleware);
 
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    if (['favicon.ico', 'robots.txt', 'api-docs', 'debug-sentry', 'admin'].some((route) => req.url.includes(route))) {
-      return next();
-    }
+  setupMiddlewares(app);
 
-    res.on('finish', () => {
-      logger.info(`${req.method} ${req.url} status code: ${res.statusCode}`);
-    });
-  
-    next();
-  });
+  setupRoutes(app);
 
-  const serverAdapter = createQueueController('/admin/queues');
-  app.get('/', (req, res) => res.status(200).send('Hello World'));
-  app.use('/admin/queues', serverAdapter.getRouter());
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  app.get("/debug-sentry", function mainHandler(req, res) {
-    throw new Error("My first Sentry error!");
-  });
+  setupErrorHandlers(app);
 
-  app.post('/user', async (req, res) => {
-    const user = new UserController();
-    const response = await user.create(req.body);
-    return res.status(201).json(response);
-  });
-
-  Sentry.setupExpressErrorHandler(app);
-
-  app.use(function onError(err: Error, req: Request, res: Response, next: NextFunction) {
-    res.statusCode = 500;
-    res.end((res as Response & { sentry: unknown}).sentry + "\n");
-  });
   app.listen(process.env.PORT, () => {
     logger.info('Server Started', {
       server: `http://localhost:${process.env.PORT}`,
