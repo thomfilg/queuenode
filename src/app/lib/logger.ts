@@ -3,6 +3,8 @@ import util from 'util';
 import winston, { Logger } from 'winston';
 import { getRequestId } from './requestId';
 
+const isDevelopment = () => process.env.NODE_ENV === 'development';
+
 const splatSymbol = Symbol.for('splat');
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -10,14 +12,17 @@ export const logger = winston.createLogger({
     winston.format.colorize(),
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message, [splatSymbol]: splatArgs = [] }) => {
-      const requestId = getRequestId();
-      const formattedMessage = [message, ...splatArgs].map((value) => {
+      const isProd = !isDevelopment();
+      let formattedMessage = [message, ...splatArgs].map((value) => {
         try {
           if (typeof value === 'object' || Array.isArray(value) || typeof value === 'function') {
-            return util.inspect(value, { depth: 5, showHidden: false, showProxy: false, maxArrayLength: null });
-          }
-          if (typeof value === 'function') {
-            return util.inspect(value, { depth: 5, showHidden: false, showProxy: false, compact: true });
+            return util.inspect(value, { 
+              depth: 5,
+              showHidden: false,
+              showProxy: false,
+              maxArrayLength: null,
+              compact: isProd
+            });
           }
           if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
             return value;
@@ -31,7 +36,15 @@ export const logger = winston.createLogger({
           return value;
         }
       }).join(' ');
-      return `${level}: ${timestamp}${requestId ? ` [${requestId}]` : ''} - ${formattedMessage}`;
+
+      let prefix = level;
+      if (isProd) {
+        const rid = getRequestId();
+        prefix += rid ? ` RequestId=${rid}` : '';
+        prefix += ` timestamp=${timestamp}`;
+        formattedMessage = formattedMessage.replace(/\n/g, '\t');
+      }
+      return `${prefix}: ${formattedMessage}`;
     })
   ),
   transports: [new winston.transports.Console()],

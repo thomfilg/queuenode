@@ -20,10 +20,8 @@ services:
       options:
         fluentd-address: localhost:24224
         fluentd-async-connect: "false"
-        # fluentd-async-flush: "true"
         fluentd-buffer-limit: "8388608" # 8 MB
         fluentd-request-ack: "true"
-        # no-newline: "true"
         tag: "app"
     healthcheck:
       test: ["CMD", "curl -f http://localhost:3333/ || exit 1"]
@@ -51,10 +49,8 @@ services:
       options:
         fluentd-address: localhost:24224
         fluentd-async-connect: "false"
-        # fluentd-async-flush: "true"
         fluentd-buffer-limit: "8388608" # 8 MB
         fluentd-request-ack: "true"
-        # no-newline: "true"
         tag: "queue"
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f 'npm run dev:queue' || exit 1"]
@@ -77,11 +73,9 @@ services:
       options:
         fluentd-address: localhost:24224
         fluentd-async-connect: "false"
-        # fluentd-async-flush: "true"
         fluentd-buffer-limit: "8388608" # 8 MB
         fluentd-max-retries: "5"
         fluentd-request-ack: "true"
-        # no-newline: "true"
         tag: "redis"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -99,7 +93,7 @@ services:
     volumes:
       - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 24224 && getent hosts fluentd || exit 1"]
+      test: ["CMD-SHELL", "(command -v nc >/dev/null 2>&1 || (echo 'Healthcheck failed: nc command not found' && exit 1)) && for i in $(seq 1 5); do nc -z -w 1 fluentd 24224 && exit 0 || echo 'Retrying to check port 24224...'; sleep 1; done; echo 'Healthcheck failed: Port 24224 is not open' && exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
