@@ -1,6 +1,9 @@
-// dotenv config must be imported before sentry
 import * as dotenv from "dotenv";
-dotenv.config({ path: __dirname + '/../.env' });
+
+if (process.env.NODE_ENV === 'development') {
+  // dotenv config must be imported before sentry
+  dotenv.config({ path: __dirname + '/../.env' });
+}
 
 // sentry config must be imported before express
 import './app/config/sentry.config';
