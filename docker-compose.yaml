@@ -24,8 +24,8 @@ services:
         fluentd-request-ack: "true"
         tag: "app"
     healthcheck:
-      test: ["CMD", "curl -f http://localhost:3333/ || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "curl -f http://localhost:3333/ || exit 1"]
+      interval: 300s
       timeout: 5s
       retries: 5
       start_period: 5s

@@ -9,7 +9,6 @@ const splatSymbol = Symbol.for('splat');
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: winston.format.combine(
-    winston.format.colorize(),
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message, [splatSymbol]: splatArgs = [] }) => {
       const isProd = !isDevelopment();
@@ -40,11 +39,14 @@ export const logger = winston.createLogger({
       let prefix = level;
       if (isProd) {
         const rid = getRequestId();
-        prefix += rid ? ` RequestId=${rid}` : '';
-        prefix += ` timestamp=${timestamp}`;
-        formattedMessage = formattedMessage.replace(/\n/g, '\t');
+        return JSON.stringify({
+          level,
+          requestId: rid,
+          timestamp,
+          message: formattedMessage.replace(/\n/g, ' '),
+        });
       }
-      return `${prefix}: ${formattedMessage}`;
+      return `${prefix} ${formattedMessage}`;
     })
   ),
   transports: [new winston.transports.Console()],
