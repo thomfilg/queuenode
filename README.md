@@ -1,6 +1,6 @@
-# Node.js Queue Processing with Bull, Redis, and Sentry
+# Distributed Task Scheduler with Node.js, Bull, and Redis
 
-This repository demonstrates how to implement background job processing in a Node.js application using TypeScript, Bull (a Redis-based queue library), and Sentry for error tracking and performance monitoring. The application includes a simple user registration system that sends a welcome email asynchronously through a job queue.
+This repository implements a distributed task scheduler system that allows clients to register tasks with specific execution times or recurring schedules. The system ensures that tasks are executed within 10 seconds of their scheduled time, with high availability and data durability guarantees.
 
 ## Table of Contents
 
@@ -17,10 +17,13 @@ This repository demonstrates how to implement background job processing in a Nod
 
 ## Features
 
-- **User Registration**: Register users via a RESTful API.
-- **Asynchronous Email Sending**: Send welcome emails using background job processing.
-- **Job Queues with Bull**: Manage and process jobs using Bull and Redis.
-- **Queue Monitoring**: Monitor job queues with Bull Board.
+- **Task Scheduling**: Register one-time tasks at specific dates/times and recurring tasks using cron syntax.
+- **Guaranteed Execution**: Tasks are executed within 10 seconds of their scheduled time.
+- **Task Management**: Create, view, update, and delete tasks through a RESTful API.
+- **Execution History**: Track task execution history and results.
+- **Asynchronous Processing**: Execute tasks in background worker processes.
+- **Job Queues with Bull**: Manage and process tasks using Bull and Redis.
+- **Queue Monitoring**: Monitor task queues with Bull Board.
 - **Error Tracking**: Track errors and performance metrics with Sentry.
 - **TypeScript Support**: Write clean and maintainable code with TypeScript.
 - **Dockerized Application**: Easily set up the application, queue processor, and Redis using Docker Compose.
@@ -33,23 +36,38 @@ This repository demonstrates how to implement background job processing in a Nod
 - **[Bull](https://github.com/OptimalBits/bull)**: Fast and reliable Redis-based queue for Node.js.
 - **[Bull Board](https://github.com/felixmosh/bull-board)**: UI to monitor and manage Bull queues.
 - **[Redis](https://redis.io/)**: In-memory data structure store used as a database, cache, and message broker.
-- **[Nodemailer](https://nodemailer.com/)**: Module for Node.js applications to send emails.
+- **[Cron Parser](https://github.com/harrisiirak/cron-parser)**: Library for parsing cron expressions.
 - **[Sentry](https://sentry.io/)**: Application monitoring platform for error tracking and performance monitoring.
 - **[Docker & Docker Compose](https://www.docker.com/)**: Containerization platform to run the application and services.
+- **[React](https://reactjs.org/)**: Frontend library for building user interfaces.
 - **[dotenv](https://github.com/motdotla/dotenv)**: Module to load environment variables from a `.env` file.
 
 ## Prerequisites
 
 - **Docker & Docker Compose**: For running the application and services ([Install Docker](https://docs.docker.com/get-docker/))
+- **Node.js Setup**: If not using Docker for development, set up Node.js environment using the provided setup script:
+  ```bash
+  # Run the setup script to install Node.js, nvm, and pnpm
+  npm run setup
+  ```
+  
+  This script (located at `scripts/setup.sh`) will:
+  - Update system packages
+  - Install curl
+  - Set up nvm (Node Version Manager)
+  - Install the latest LTS version of Node.js
+  - Configure pnpm as the package manager
 
 ## Installation
 
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/queuenode.git
-   cd queuenode
+   git clone https://github.com/yourusername/task-scheduler.git
+   cd task-scheduler
    ```
+   
+   > **Note**: If you're not using Docker for development, run `npm run setup` first to configure your Node.js environment.
 
 2. **Set Up Environment Variables**
 
@@ -57,11 +75,6 @@ This repository demonstrates how to implement background job processing in a Nod
 
    ```env
    PORT=3333
-
-   MAILER_USER="your_email@example.com"
-   MAILER_PASSWORD="your_email_password"
-   MAILER_HOST="smtp.example.com"
-   MAILER_PORT=587
 
    REDIS_HOST="redis"
    REDIS_PORT=6379
@@ -73,7 +86,7 @@ This repository demonstrates how to implement background job processing in a Nod
 
 3. **Start Services using Docker Compose**
 
-   If you have Docker installed, you can start all services (API server, queue processor, and Redis) using the provided `docker-compose.yml`:
+   If you have Docker installed, you can start all services (API server, task processor, and Redis) using the provided `docker-compose.yml`:
 
    ```bash
    docker-compose up -d
@@ -86,44 +99,61 @@ This repository demonstrates how to implement background job processing in a Nod
 The application is now running inside Docker containers:
 
 - **API Server**: Accessible at `http://localhost:3333`
-- **Queue Processor**: Runs in the background processing jobs
+- **Task Processor**: Runs in the background processing tasks
 - **Redis**: In-memory data store used by the application and queue
+- **React UI**: Accessible at `http://localhost:4200`
 
 ## API Endpoints
 
-- **POST `/user`**: Register a new user and send a welcome email asynchronously.
-
-  **Request Body:**
-
+- **POST `/api/tasks`**: Create a new task
+  
+  **Request Body (One-time Task):**
   ```json
   {
-    "name": "John Doe",
-    "email": "john.doe@example.com"
+    "name": "Send notification",
+    "description": "Send a push notification to user",
+    "type": "one-time",
+    "scheduledAt": "2023-12-01T15:00:00Z",
+    "payload": {
+      "userId": "12345",
+      "message": "Hello, world!"
+    }
   }
   ```
 
-  **Response:**
-
+  **Request Body (Recurring Task):**
   ```json
   {
-    "name": "John Doe",
-    "email": "john.doe@example.com"
+    "name": "Daily report",
+    "description": "Generate daily report",
+    "type": "recurring",
+    "cronExpression": "0 0 * * *",
+    "payload": {
+      "reportType": "daily",
+      "recipients": ["user@example.com"]
+    }
   }
   ```
 
-- **GET `/`**: Simple endpoint returning "Hello World".
+- **GET `/api/tasks`**: Get all tasks
+- **GET `/api/tasks/:id`**: Get a specific task
+- **PUT `/api/tasks/:id`**: Update a task
+- **DELETE `/api/tasks/:id`**: Delete a task
+- **GET `/api/tasks/:id/history`**: Get execution history for a task
+- **GET `/api/history`**: Get execution history for all tasks
 
 ## Queue Monitoring
 
-Monitor and manage your job queues using Bull Board:
+Monitor and manage your task queues using Bull Board:
 
 - **URL**: `http://localhost:3333/admin/queues`
 
 Here you can:
 
-- View job statuses
-- Retry failed jobs
-- Clean completed or failed jobs
+- View task statuses
+- Monitor upcoming scheduled tasks
+- Retry failed tasks
+- Clean completed or failed tasks
 
 ## Error Tracking
 
@@ -138,10 +168,6 @@ Ensure you have set your Sentry DSN in the `.env` file for error reporting to wo
 | Variable          | Description                                 | Default     |
 | ----------------- | ------------------------------------------- | ----------- |
 | `PORT`            | Port number for the API server              | `3333`      |
-| `MAILER_USER`     | Email username for Nodemailer               |             |
-| `MAILER_PASSWORD` | Email password for Nodemailer               |             |
-| `MAILER_HOST`     | SMTP host for Nodemailer                    |             |
-| `MAILER_PORT`     | SMTP port for Nodemailer                    | `587`       |
 | `REDIS_HOST`      | Hostname for Redis server                   | `redis`     |
 | `REDIS_PORT`      | Port for Redis server                       | `6379`      |
 | `SENTRY_DSN`      | DSN for Sentry error tracking               |             |

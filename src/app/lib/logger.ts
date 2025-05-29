@@ -12,7 +12,7 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message, [splatSymbol]: splatArgs = [] }) => {
       const isProd = !isDevelopment();
-      let formattedMessage = [message, ...splatArgs].map((value) => {
+      let formattedMessage = [message, ...(splatArgs as unknown[])].map((value) => {
         try {
           if (typeof value === 'object' || Array.isArray(value) || typeof value === 'function') {
             return util.inspect(value, { 

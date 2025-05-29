@@ -1,7 +1,7 @@
 name: queuenode
 
 services:
-  app:
+  api:
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -11,7 +11,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - .:/app
+      - .:/api
     command: npm run dev:server
     env_file:
       - .env
@@ -22,7 +22,7 @@ services:
         fluentd-async-connect: "false"
         fluentd-buffer-limit: "8388608" # 8 MB
         fluentd-request-ack: "true"
-        tag: "app"
+        tag: "api"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3333/ || exit 1"]
       interval: 300s
@@ -40,7 +40,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - .:/app
+      - .:/api
     command: npm run dev:queue
     env_file:
       - .env

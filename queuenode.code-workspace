@@ -1,7 +1,20 @@
 {
 	"folders": [
 		{
+			"name": "taskScheduler",
+			"path": "../taskScheduler"
+		},
+		{
+			"name": "queuenode",
 			"path": "."
+		},
+		{
+			"name": "gym-mono-repo",
+			"path": "../gym-mono-repo"
+		},
+		{
+			"name": "internal",
+			"path": "../../internal"
 		}
 	],
 	"settings": {

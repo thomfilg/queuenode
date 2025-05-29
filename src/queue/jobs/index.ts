@@ -1,1 +1,1 @@
-export { RegistrationMail } from './RegistrationMail.job';
+export { TaskProcess } from './TaskProcess';
